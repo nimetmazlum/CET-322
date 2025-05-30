@@ -1,0 +1,128 @@
+﻿@model CET322.Models.Ticket
+
+@{
+    ViewData["Title"] = "Yeni Ticket";
+
+    var priorities = (SelectList)ViewData["Priorities"];
+    var categories = (SelectList)ViewData["Categories"];
+    var statuses = (SelectList)ViewData["Statuses"];
+    var admins = (SelectList)ViewData["Admins"];
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0"> + Create Ticket</h2>
+    <a asp-action="Index" class="btn btn-secondary">← Listeye Dön</a>
+</div>
+
+<form asp-action="Create" method="post">
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" }) 
+
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            <label asp-for="Title">Title</label>
+            <input asp-for="Title" class="form-control" required />
+        </div>
+
+        <div class="form-group col-md-6">
+            <label asp-for="Priority">Priority</label>
+            <select asp-for="Priority" class="form-control" asp-items="priorities" required>
+                <option value="">-- Seçin --</option>
+            </select>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Description">Description</label>
+        <textarea asp-for="Description" class="form-control" rows="3" style="max-height:150px" required></textarea>
+    </div>
+
+    <div class="form-row">
+        <div class="form-group col-md-6">
+            <label asp-for="CategoryId">Category</label>
+            <select asp-for="CategoryId" class="form-control" asp-items="categories" id="CategoryId" required>
+                <option value="">-- Select Category --</option>
+            </select>
+        </div>
+
+        <div class="form-group col-md-6">
+            <label asp-for="StageId">Stage</label>
+            <select asp-for="StageId" class="form-control" id="StageId" required>
+                <option value="">-- Select Stage --</option>
+            </select>
+        </div>
+    </div>
+
+    @if (User.IsInRole("Admin"))
+    {
+        <div class="form-row">
+            <div class="form-group col-md-6">
+                <label asp-for="AssignedToId">Assigned To</label>
+                <select asp-for="AssignedToId" class="form-control" asp-items="admins">
+                    <option value="">-- Select --</option>
+                </select>
+            </div>
+
+            <div class="form-group col-md-6">
+                <label asp-for="Status">Stage</label>
+                <select asp-for="Status" class="form-control" asp-items="statuses">
+                    <option value="">-- Select --</option>
+                </select>
+            </div>
+        </div>
+    }
+
+    <button type="submit" class="btn btn-primary mt-3">💾 Oluştur</button>
+</form>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+
+    <script>
+        // Sayfa ilk açıldığında Category seçiliyse Stage'leri getir
+        document.addEventListener('DOMContentLoaded', function () {
+            const categorySelect = document.getElementById("CategoryId");
+            const stageSelect = document.getElementById("StageId");
+
+            const selectedCategoryId = categorySelect.value;
+            if (selectedCategoryId) {
+                fetch('/api/stages/bycategory/' + selectedCategoryId)
+                    .then(r => r.json())
+                    .then(data => {
+                        stageSelect.innerHTML = '<option value="">-- Seçin --</option>';
+                        data.forEach(s =>
+                            stageSelect.insertAdjacentHTML('beforeend',
+                                `<option value="${s.id}">${s.name}</option>`));
+
+                        // Daha önce seçilmiş Stage varsa otomatik seç
+                        const selectedStageId = "@Model?.StageId";
+                        if (selectedStageId) {
+                            stageSelect.value = selectedStageId;
+                        }
+                    });
+            }
+        });
+
+        // Kategori değiştiğinde aşamaları yeniden getir
+        document.getElementById('CategoryId').addEventListener('change', function () {
+            const catId = this.value;
+            const stageSel = document.getElementById('StageId');
+            stageSel.innerHTML = '<option value="">-- Yükleniyor... --</option>';
+
+            if (!catId) {
+                stageSel.innerHTML = '<option value="">-- Seçin --</option>';
+                return;
+            }
+
+            fetch('/api/stages/bycategory/' + catId)
+                .then(r => r.json())
+                .then(data => {
+                    stageSel.innerHTML = '<option value="">-- Seçin --</option>';
+                    data.forEach(s =>
+                        stageSel.insertAdjacentHTML('beforeend',
+                            `<option value="${s.id}">${s.name}</option>`));
+                })
+                .catch(() => stageSel.innerHTML =
+                    '<option value="">-- Hata: Aşamalar getirilemedi --</option>');
+        });
+    </script>
+}

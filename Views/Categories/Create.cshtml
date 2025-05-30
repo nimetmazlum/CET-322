@@ -1,0 +1,25 @@
+﻿@model CET322.Models.Category
+
+@{
+    ViewData["Title"] = "Yeni Kategori";
+}
+
+<h2>New Category</h2>
+
+<form asp-controller="Categories" asp-action="Create" method="post">
+    @Html.AntiForgeryToken()
+
+    <div class="form-group">
+        <label asp-for="Name" class="control-label"></label>
+        <input asp-for="Name" class="form-control" required />
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-success">Save</button>
+
+</form>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+<input type="hidden" name="debugCheck" value="create_form_submitted" />

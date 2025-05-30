@@ -1,0 +1,39 @@
+﻿@model IEnumerable<CET322.Models.Comment>
+@{
+    ViewData["Title"] = "Yorumlar";
+    int ticketId = (int)ViewBag.TicketId;
+}
+
+<h2>Comments</h2>
+
+<a asp-action="Create" asp-route-ticketId="@ticketId" class="btn btn-primary mb-3">+ New Comment</a>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">No comment :)</div>
+}
+else
+{
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>From</th>
+                <th>Comment</th>
+                <th>Created</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var comment in Model)
+            {
+                <tr>
+                    <td>@comment.User.UserName</td>
+                    <td>@comment.Content</td>
+                    <td>@comment.CreatedAt.ToString("g")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <a asp-controller="Tickets" asp-action="Details" asp-route-id="@ViewBag.TicketId" class="btn btn-secondary mt-3">Back</a>
+
+}

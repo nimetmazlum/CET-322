@@ -1,0 +1,134 @@
+﻿@model CET322.Models.Ticket
+
+@{
+    ViewData["Title"] = "Ticket Düzenle";
+
+    var priorities = (SelectList)ViewData["Priorities"];
+    var categories = (SelectList)ViewData["Categories"];
+    var statuses = (SelectList)ViewData["Statuses"];
+    var admins = (SelectList)ViewData["Admins"];
+}
+
+<h2 class="mb-3">Edit Ticket</h2>
+
+<form asp-action="Edit" method="post">
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(m => m.Id)
+
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+    <div class="form-group">
+        <label asp-for="Title"></label>
+        <input asp-for="Title" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Description"></label>
+        <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+    </div>
+
+    @if (User.IsInRole("Admin"))
+    {
+        <div class="form-group">
+            <label asp-for="CategoryId">Category</label>
+            <select asp-for="CategoryId" class="form-control" asp-items="categories" id="CategoryId">
+                <option value="">-- Select --</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="StageId">Stage</label>
+            <select asp-for="StageId" class="form-control" id="StageId">
+                <option value="">-- Select --</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Priority">Öncelik</label>
+            <select asp-for="Priority" class="form-control" asp-items="priorities">
+                <option value="">-- Seçin --</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="AssignedToId">Assigned To</label>
+            <select asp-for="AssignedToId" class="form-control" asp-items="admins">
+                <option value="">-- Select --</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="Status">Stage</label>
+            <select asp-for="Status" class="form-control" asp-items="statuses">
+                <option value="">-- Select --</option>
+            </select>
+        </div>
+    }
+    else
+    {
+        @*  *@
+        @Html.HiddenFor(m => m.CategoryId)
+        @Html.HiddenFor(m => m.StageId)
+        @Html.HiddenFor(m => m.Priority)
+        @Html.HiddenFor(m => m.AssignedToId)
+        @Html.HiddenFor(m => m.Status)
+    }
+
+    <button type="submit" class="btn btn-primary mt-3">Save</button>
+    <a asp-action="Index" class="btn btn-secondary mt-3 ml-2"> Back</a>
+</form>
+
+@section Scripts {
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+
+    @* Sadece admin görüyorsa JS de sadece admin için *@
+    @if (User.IsInRole("Admin"))
+    {
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const catId = document.getElementById("CategoryId").value;
+                const stageSel = document.getElementById("StageId");
+
+                if (!catId) return;
+
+                fetch('/api/stages/bycategory/' + catId)
+                    .then(r => r.json())
+                    .then(data => {
+                        stageSel.innerHTML = '<option value="">-- Select --</option>';
+                        data.forEach(s =>
+                            stageSel.insertAdjacentHTML('beforeend',
+                                `<option value="${s.id}">${s.name}</option>`));
+
+                        const selectedStageId = "@Model?.StageId";
+                        if (selectedStageId) {
+                            stageSel.value = selectedStageId;
+                        }
+                    });
+            });
+
+            document.getElementById("CategoryId").addEventListener("change", function () {
+                const catId = this.value;
+                const stageSel = document.getElementById("StageId");
+
+                if (!catId) {
+                    stageSel.innerHTML = '<option value="">-- Select --</option>';
+                    return;
+                }
+
+                stageSel.innerHTML = '<option value="">-- waiting... --</option>';
+
+                fetch('/api/stages/bycategory/' + catId)
+                    .then(r => r.json())
+                    .then(data => {
+                        stageSel.innerHTML = '<option value="">-- Select --</option>';
+                        data.forEach(s =>
+                            stageSel.insertAdjacentHTML('beforeend',
+                                `<option value="${s.id}">${s.name}</option>`));
+                    })
+                    .catch(() => {
+                        stageSel.innerHTML = '<option value="">-- Stages Failed --</option>';
+                    });
+            });
+        </script>
+    }
+}

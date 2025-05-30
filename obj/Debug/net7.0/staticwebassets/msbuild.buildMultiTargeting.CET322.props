@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\build\CET322.props" />
+</Project>

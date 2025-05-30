@@ -1,0 +1,47 @@
+﻿@{
+    ViewData["Title"] = "Register";
+}
+
+<h2>Create Account</h2>
+
+<form asp-action="Register" method="post">
+    <div>
+        <label>Name:</label>
+        <input type="text" name="firstName" required />
+    </div>
+    <div>
+        <label>Surname:</label>
+        <input type="text" name="lastName" required />
+    </div>
+    <div>
+        <label>Email:</label>
+        <input type="email" name="email" required />
+    </div>
+    <div>
+        <label>Password:</label>
+        <input type="password" name="password" required />
+    </div>
+    <div>
+        <label>Company:</label>
+        <select name="companyId" required>
+            <option value="">-- Select Category --</option>
+            @foreach (var company in ViewBag.Companies as List<CET322.Models.Company>)
+            {
+                <option value="@company.Id">@company.Name</option>
+            }
+        </select>
+    </div>
+    <div>
+        <label>Role :</label>
+        <input type="radio" id="admin" name="role" value="Admin" checked />
+        <label for="admin">Admin</label>
+        <input type="radio" id="user" name="role" value="User" />
+        <label for="user">User</label>
+    </div>
+    <button type="submit">Create Account</button>
+</form>
+
+@foreach (var error in ViewData.ModelState.Values.SelectMany(v => v.Errors))
+{
+    <div style="color:red">@error.ErrorMessage</div>
+}

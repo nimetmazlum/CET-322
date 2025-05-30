@@ -1,0 +1,25 @@
+﻿@model CET322.Models.Comment
+
+@{
+    ViewData["Title"] = "Yorum Ekle";
+    int ticketId = (int)ViewBag.TicketId;
+}
+
+<h2>Add Comment</h2>
+
+<form asp-action="Create" asp-route-ticketId="@ticketId" method="post">
+    <div class="form-group">
+        <label asp-for="Content" class="form-label"></label>
+        <textarea asp-for="Content" class="form-control" rows="4"></textarea>
+        <span asp-validation-for="Content" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-success mt-2">Save</button>
+    <a asp-action="Index" asp-route-ticketId="@ticketId" class="btn btn-secondary mt-2">Back</a>
+</form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

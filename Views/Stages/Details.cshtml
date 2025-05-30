@@ -1,0 +1,22 @@
+﻿@model CET322.Models.Stage
+
+@{
+    ViewData["Title"] = "Aşama Detayları";
+}
+
+<h2>Stage Details</h2>
+
+<div>
+    <dl class="row">
+        <dt class="col-sm-2">Adı</dt>
+        <dd class="col-sm-10">@Model.Name</dd>
+
+        <dt class="col-sm-2">Category</dt>
+        <dd class="col-sm-10">@Model.Category?.Name</dd>
+    </dl>
+</div>
+
+<div>
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Edit</a> |
+    <a asp-action="Index" class="btn btn-secondary">Back</a>
+</div>

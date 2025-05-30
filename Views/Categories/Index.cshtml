@@ -1,0 +1,31 @@
+﻿@model IEnumerable<CET322.Models.Category>
+@{
+    ViewData["Title"] = "Kategoriler";
+}
+
+<h2>Category</h2>
+
+<p>
+    <a asp-controller="Categories" asp-action="Create" class="btn btn-primary">+ New Category</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Category Name</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.Name</td>
+                <td>
+                    <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
+                    <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
